@@ -1,0 +1,74 @@
+<div>
+    <div class="modal" style="height:50%;width:80%; margin:0 auto; botton: auto" id="branchModalLabel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div>
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">
+                    Detailed View
+                </h4>
+                <button type="button" class="close" ng-click="closeDetailsWindowAll()" style="width: auto">
+                    &times;
+                </button>
+                <!--<button class="btn btn-primary" ng-click="addSchedule()">分配日程</button>-->
+            </div>
+            <div class="modal-body">
+                <table style="width: 100%">
+                    <tr>
+                        <td>No.</td>
+                        <td>branch name</td>
+                        <td>level</td>
+                        <td>complete</td>
+                        <td>In progress</td>
+                        <td>fail</td>
+                        <td>total</td>
+                        <td>action</td>
+                    </tr>
+                    <tr ng-repeat="e in schedule">
+                        <td>{{$index + 1}}</td>
+                        <td><input type="text" ng-model="e.NAME" style="width:200px;height:35px" disabled="disabled"/></td>
+                        <td><input type="text" ng-model="e.LEVEL" style="width:200px;height:35px"  disabled="disabled"/></td>
+                        <td><input type="text" ng-model="e.finish"  style="width:200px;height:35px" disabled="disabled"/></td>
+                        <td><input type="text" ng-model="e.unfinished" style="width:200px;height:35px" disabled="disabled"/></td>
+                        <td><input type="text" ng-model="e.fail" style="width:200px;height:35px" disabled="disabled"/></td>
+                        <td><input type="text" ng-model="e.total" style="width:200px;height:35px" disabled="disabled"/></td>
+                        <td><button type="button" class="btn btn-primary" ng-click="branchScheduleInfo($index)" style="margin-top: -10px;">▼</button></td>
+                        <td><input type="text" ng-model="e.id" style="display: none" /></td>
+
+                    <table style="width: 80%" ng-show="isShow">
+                        <tr>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            <td style="display: none"></td>
+                            <td>staff name</td>
+                            <td>title</td>
+                            <td>body</td>
+                            <td>phone</td>
+                            <td>appointment time</td>
+                            <td>end time</td>
+                            <td>type</td>
+                        </tr>
+                    <tr ng-repeat="x in branchStaffList" >
+                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td style="display: none">{{$index + 1}}</td>
+                    <td><input type="text" ng-model="x.userName" ng-style='$parent["colorValue"+{{$index}}]' style="width:200px;height:35px" disabled="disabled"/></td>
+                    <td><input type="text" ng-model="x.title" ng-style='$parent["colorValue"+{{$index}}]' style="width:200px;height:35px" disabled="disabled"/></td>
+                    <td><input type="text" ng-model="x.body" ng-style='$parent["colorValue"+{{$index}}]' style="width:200px;height:35px" disabled="disabled"/></td>
+                    <td><input type="text" ng-model="x.phone" ng-style='$parent["colorValue"+{{$index}}]' style="width:200px;height:35px" disabled="disabled"/></td>
+                    <td><input type="text" ng-model="x.startTime" ng-style='$parent["colorValue"+{{$index}}]' style="width:200px;height:35px"  disabled="disabled"/></td>
+                    <td><input type="text" ng-model="x.endTime" ng-style='$parent["colorValue"+{{$index}}]' style="width:200px;height:35px" disabled="disabled"/></td>
+                    <td>
+                        <input type="text" ng-if="x.TYPE==0" ng-style='$parent["colorValue"+{{$index}}]' style="width:200px;height:35px" value="complete" disabled="disabled"/>
+                        <input type="text" ng-if="x.TYPE==1" ng-style='$parent["colorValue"+{{$index}}]' style="width:200px;height:35px" value="In progress" disabled="disabled"/>
+                        <input type="text" ng-if="x.TYPE==2" ng-style='$parent["colorValue"+{{$index}}]' style="width:200px;height:35px" value="fail" disabled="disabled"/>
+                    </td>
+                </tr>
+                </table>
+                 </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" ng-click="closeDetailsWindowAll()">close
+                </button>
+
+            </div>
+        </div><!-- /.modal -->
+    </div>
+</div>

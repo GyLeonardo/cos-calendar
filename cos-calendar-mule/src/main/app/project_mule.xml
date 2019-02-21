@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:context="http://www.springframework.org/schema/context" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <db:mysql-config name="MySQL_Configuration" host="${db.host}" port="${db.port}" user="${db.user}" password="${db.password}" database="${db.database}" doc:name="MySQL Configuration"/>
+    <apikit:config name="Router" raml="saveapplicationApi.raml" consoleEnabled="false" consolePath="console" keepRamlBaseUri="false" doc:name="Router">
+        <apikit:flow-mapping resource="/getCalendarTimeList" action="post" content-type="application/json" flow-ref="getCalendarTimeList"/>
+        <apikit:flow-mapping resource="/getDaySchedule" action="post" content-type="application/json" flow-ref="getDaySchedule"/>
+        <apikit:flow-mapping resource="/saveCalendarSchdule" action="post" content-type="application/json" flow-ref="saveCalendarSchdule"/>
+        <apikit:flow-mapping resource="/login" action="post" content-type="application/json" flow-ref="login"/>
+        <apikit:flow-mapping resource="/getGrade" action="post" content-type="application/json" flow-ref="getGrade"/>
+        <apikit:flow-mapping resource="/getAllTimeSchedule" action="post" content-type="application/json" flow-ref="getAllTimeSchedule"/>
+        <apikit:flow-mapping resource="/getStaffList" action="post" content-type="application/json" flow-ref="getStaffList"/>
+        <apikit:flow-mapping resource="/getAllBranch" action="post" content-type="application/json" flow-ref="getAllBranch"/>
+        <apikit:flow-mapping resource="/getHeadOfficeList" action="post" content-type="application/json" flow-ref="getHeadOfficeList"/>
+        <apikit:flow-mapping resource="/getDayAllBranchScheduleList" action="post" content-type="application/json" flow-ref="getDayAllBranchSchedule"/>
+        <apikit:flow-mapping resource="/getDayBranchStaffInfo" action="post" content-type="application/json" flow-ref="getDayBranchStaffInfo"/>
+        <apikit:flow-mapping resource="/dragAndDrop" action="post" content-type="application/json" flow-ref="dragAndDrop"/>
+        <apikit:flow-mapping resource="/saveBranchCalendar" action="post" content-type="application/json" flow-ref="saveBranchCalendarSchedule"/>
+        <apikit:flow-mapping resource="/everyDayCount" action="post" content-type="application/json" flow-ref="everyDayCount"/>
+        <apikit:flow-mapping resource="/deleteSchdule" action="post" content-type="application/json" flow-ref="deleteSchdule"/>
+        <apikit:flow-mapping resource="/updateDistributeTask" action="post" content-type="application/json" flow-ref="updateDistributeTask"/>
+        <apikit:flow-mapping resource="/getDistributeTaskList" action="post" content-type="application/json" flow-ref="getDistributeTask"/>
+        <apikit:flow-mapping resource="/saveTaskQuantity" action="post" content-type="application/json" flow-ref="saveTaskQuantity"/>
+        <apikit:flow-mapping resource="/seePersonalNumber" action="post" content-type="application/json" flow-ref="seePersonalNumber"/>
+        <apikit:flow-mapping resource="/editBranchInfo" action="post" content-type="application/json" flow-ref="editBranchInfo"/>
+        <apikit:flow-mapping resource="/delBranchInfo" action="post" content-type="application/json" flow-ref="delBranchInfo"/>
+        <apikit:flow-mapping resource="/getBranchInfo" action="post" content-type="application/json" flow-ref="getBranchInfo"/>
+
+
+
+
+
+
+    </apikit:config>
+    <context:property-placeholder location="db.properties"/>
+    <flow name="project_muleFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/api/*" doc:name="HTTP"/>
+        <apikit:router config-ref="Router" doc:name="APIkit Router"/>
+    </flow>
+    <flow name="login" doc:description="&#30331;&#38470;">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="account" value="#[payload.username]" doc:name="Variable"/>
+        <set-variable variableName="password" value="#[payload.password]" doc:name="Variable"/>
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.login}]]></db:parameterized-query>
+        </db:select>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="getGrade" doc:description="&#33719;&#21462;&#26435;&#38480;">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="userId" value="#[payload.userId]" doc:name="Variable"/>
+        <db:select config-ref="MySQL_Configuration" doc:name="getRole" doc:description="&#33719;&#21462;&#31561;&#32423;">
+            <db:parameterized-query><![CDATA[${sql.getGradeGetRole}]]></db:parameterized-query>
+
+        </db:select>
+        <set-variable variableName="bid" value="#[payload[0].bid]" encoding="UTF-8" doc:name="Variable"/>
+        <set-variable variableName="rid" value="#[payload[0].rid]" doc:name="Variable"/>
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.getGradeGrade}]]></db:parameterized-query>
+
+        </db:select>
+        <set-variable variableName="grade" value="#[payload[0].grade]" encoding="UTF-8" doc:name="Variable"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{bid:flowVars.bid,grade:flowVars.grade}]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="getAllTimeSchedule" doc:description="&#33719;&#21462;&#25152;&#26377;&#26085;&#21382;&#26631;&#39064;&#21592;&#24037;&#26085;&#31243;">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="bid" value="#[payload.bid]" doc:name="Variable"/>
+
+        <db:select config-ref="MySQL_Configuration" doc:name="Uncomplete">
+            <db:parameterized-query><![CDATA[${sql.getAllTimeSchedule}]]></db:parameterized-query>
+
+        </db:select>
+
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="getHeadOfficeList">
+        <logger message="----------------------Enter the head office interface------------------" level="INFO" doc:name="Logger"/>
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.headOfficeCalenderList}]]></db:parameterized-query>
+        </db:select>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="getCalendarTimeList" doc:description="&#33719;&#21462;&#21592;&#24037;&#26085;&#21382;&#26631;&#39064;&#26085;&#31243;">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="userId" value="#[payload.userId]" doc:name="Variable"/>
+        <choice doc:name="Choice">
+            <when expression="payload.userId !=''">
+                <db:select config-ref="MySQL_Configuration" doc:name="Database">
+                    <db:parameterized-query><![CDATA[${sql.getCalendarTimeList}]]></db:parameterized-query>
+                </db:select>
+
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+            <otherwise>
+                <logger level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+    </flow>
+    <flow name="getDaySchedule" initialState="started" doc:description="&#21592;&#24037;&#28857;&#20987;&#33719;&#21462;&#24403;&#22825;&#26085;&#31243;">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="bid" value="#[payload.bid]" doc:name="Variable"/>
+        <set-variable variableName="timeStamp" value="#[payload.timeStamp]" encoding="UTF-8" doc:name="Variable"/>
+        <set-variable variableName="userId" value="#[payload.userId]" encoding="UTF-8" doc:name="Variable"/>
+        <choice doc:name="Choice">
+            <when expression="payload.timeStamp !=''&amp;&amp;payload.userId !=null">
+                <db:select config-ref="MySQL_Configuration" doc:name="Database" doc:description="&#28857;&#20987;&#26597;&#30475;&#27599;&#22825;&#26085;&#31243;">
+                    <db:dynamic-query><![CDATA[${sql.staffDaySchedule}]]></db:dynamic-query>
+                </db:select>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+            <otherwise>
+                <db:select config-ref="MySQL_Configuration" doc:name="Database">
+                    <db:parameterized-query><![CDATA[${sql.managerDaySchedule}]]></db:parameterized-query>
+                </db:select>
+                <logger message="is null" level="INFO" doc:name="Logger"/>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+                </dw:transform-message>
+            </otherwise>
+        </choice>
+    </flow>
+
+    <flow name="getStaffList" doc:description="&#33719;&#21462;&#25152;&#26377;&#21592;&#24037;&#21015;&#34920;&#65288;&#38656;&#35201;&#25913;&#21160;&#65289;">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="bid" value="#[payload.bid]" doc:name="Variable"/>
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.getStaffList}]]></db:parameterized-query>
+
+        </db:select>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="saveCalendarSchdule" doc:description="&#21592;&#24037;&#20445;&#23384;&#33258;&#24049;&#26085;&#31243;">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-payload value="#[payload.schedule]" encoding="UTF-8" doc:name="Set Payload"/>
+        <set-variable variableName="id" value="#[payload.id]" doc:name="Variable"/>
+        <set-variable variableName="infoId" value="#[payload.infoId]" encoding="UTF-8" doc:name="Variable"/>
+        <set-variable variableName="userId" value="#[payload.userId]" doc:name="Variable"/>
+        <transactional action="ALWAYS_BEGIN" doc:name="Transactional">
+            <choice doc:name="Choice">
+                <when expression="payload.id ==0">
+                    <logger level="INFO" doc:name="Logger"/>
+                    <db:insert config-ref="MySQL_Configuration" doc:name="Database">
+                        <db:parameterized-query><![CDATA[${sql.saveCalenderSchedule}]]></db:parameterized-query>
+                    </db:insert>
+                    <db:update config-ref="MySQL_Configuration" doc:name="Database">
+                        <db:parameterized-query><![CDATA[${sql.updatePlusCount}]]></db:parameterized-query>
+                    </db:update>
+                </when>
+                <otherwise>
+                    <logger level="INFO" doc:name="Logger"/>
+                    <db:update config-ref="MySQL_Configuration" doc:name="Database">
+                        <db:parameterized-query><![CDATA[${sql.updateCalenderSchedule}]]></db:parameterized-query>
+                    </db:update>
+                </otherwise>
+            </choice>
+        </transactional>
+
+    </flow>
+    <flow name="deleteSchdule">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="id" value="#[payload.id]" doc:name="Variable"/>
+        <set-variable variableName="userId" value="#[payload.userId]" doc:name="Variable"/>
+        <set-variable variableName="timeStamp" value="#[payload.timeStamp]" doc:name="Variable"/>
+        <db:delete config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.deleteCalenderSchedule}]]></db:parameterized-query>
+        </db:delete>
+        <db:update config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.updateReduceCount}]]></db:parameterized-query>
+        </db:update>
+    </flow>
+    <flow name="getAllBranch" doc:description="&#33719;&#21462;&#25152;&#26377;&#20998;&#34892;&#20197;&#21450;&#32463;&#29702;&#21517;&#31216;">
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.getAllBranch}]]></db:parameterized-query>
+        </db:select>
+
+
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+
+    </flow>
+    <flow name="getDayAllBranchSchedule">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.getAllBranchSchedule}]]></db:parameterized-query>
+        </db:select>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="getDayBranchStaffInfo">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:dynamic-query><![CDATA[${sql.getDayBranchStaffInfo}]]></db:dynamic-query>
+
+        </db:select>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="dragAndDrop">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="id" value="#[payload.id]" encoding="UTF-8" doc:name="Variable"/>
+        <set-variable variableName="timeStamp" value="#[payload.timeStamp]" doc:name="Variable"/>
+        <set-variable variableName="timeDay" value="#[payload.timeDay]" doc:name="Variable"/>
+        <db:update config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.dragAndDrop}]]></db:parameterized-query>
+        </db:update>
+    </flow>
+    <flow name="saveBranchCalendarSchedule">
+        <logger message="----------start" level="INFO" doc:name="Logger"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload.newSchedule]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="newSchedule" value="#[payload.newSchedule]" doc:name="Variable"/>
+        <foreach collection="payload" doc:name="For Each">
+            <set-payload value="#[payload]" doc:name="Set Payload"/>
+            <db:update config-ref="MySQL_Configuration" doc:name="Database">
+                <db:parameterized-query><![CDATA[${sql.saveBranchScheduleInfo}]]></db:parameterized-query>
+
+            </db:update>
+            <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+        </foreach>
+        <logger message="--------------------end" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="everyDayCount" doc:description="&#26597;&#35810;&#23545;&#24212;&#20219;&#21153;&#37327;">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="userId" value="#[payload.userId]" doc:name="Variable"/>
+        <set-variable variableName="timeStamp" value="#[payload.timeStamp]" doc:name="Variable"/>
+        <set-variable variableName="type" value="#[payload.type]" doc:name="Variable"/>
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.everyDayCount}]]></db:parameterized-query>
+        </db:select>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+
+        </dw:transform-message>
+    </flow>
+    <flow name="updateDistributeTask">
+        <logger level="INFO" doc:name="Logger"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <db:update config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.updateDistributeTask}]]></db:parameterized-query>
+        </db:update>
+    </flow>
+    <flow name="getDistributeTask">
+        <logger level="INFO" doc:name="Logger"/>
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.getDistributeTask}]]></db:parameterized-query>
+        </db:select>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="saveTaskQuantity">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-payload value="#[payload]" doc:name="Set Payload"/>
+        <set-variable variableName="id" value="#[payload.id]" doc:name="Variable"/>
+        <choice doc:name="Choice">
+            <when expression="payload.id == 0">
+                <logger level="INFO" doc:name="Logger"/>
+                <db:insert config-ref="MySQL_Configuration" doc:name="Database">
+                    <db:parameterized-query><![CDATA[${sql.saveTaskQuantity}]]></db:parameterized-query>
+                </db:insert>
+
+            </when>
+            <otherwise>
+                <logger level="INFO" doc:name="Logger"/>
+                <db:update config-ref="MySQL_Configuration" doc:name="Database">
+                    <db:parameterized-query><![CDATA[${sql.updataTaskQuantity}]]></db:parameterized-query>
+                </db:update>
+            </otherwise>
+        </choice>
+    </flow>
+    <flow name="seePersonalNumber">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <set-payload value="#[payload]" doc:name="Set Payload"/>
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.seePersonalNumber}]]></db:parameterized-query>
+        </db:select>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="editBranchInfo">
+        <logger message="-------------edit (update, insert) inertface " level="INFO" doc:name="Logger"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <choice doc:name="Choice">
+            <when expression="#[payload.branchUpdateInfo.size()&gt;0]">
+                <logger message="-------------update interface" level="INFO" doc:name="Logger"/>
+                <foreach collection="#[payload.branchUpdateInfo]" doc:name="For Each">
+                    <set-payload value="#[payload]" doc:name="Set Payload"/>
+                    <db:update config-ref="MySQL_Configuration" doc:name="Database">
+                        <db:parameterized-query><![CDATA[${sql.updateBranchInfo}]]></db:parameterized-query>
+                    </db:update>
+                </foreach>
+            </when>
+            <otherwise>
+                <logger message="-----------insert interface" level="INFO" doc:name="Logger"/>
+                <foreach collection="#[payload.branchDelInfo]" doc:name="For Each">
+                    <set-payload value="#[payload]" doc:name="Set Payload"/>
+                    <db:insert config-ref="MySQL_Configuration" doc:name="Database">
+                        <db:parameterized-query><![CDATA[${sql.addNewBranchInfo}]]></db:parameterized-query>
+                    </db:insert>
+                </foreach>
+            </otherwise>
+        </choice>
+        <logger message="--------------end" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="getBranchInfo">
+        <logger message="------------select branch data list" level="INFO" doc:name="Logger"/>
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[${sql.getAllBranchInfoList}]]></db:parameterized-query>
+        </db:select>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+    </flow>
+    <flow name="delBranchInfo">
+        <logger level="INFO" doc:name="Logger"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload.branchDelInfo]]></dw:set-payload>
+        </dw:transform-message>
+        <choice doc:name="Choice">
+            <when expression="#[payload.size()&gt;0]">
+                <foreach collection="#[payload]" doc:name="For Each">
+                    <set-payload doc:name="Set Payload" value="#[payload]"/>
+                    <db:delete config-ref="MySQL_Configuration" doc:name="Database">
+                        <db:parameterized-query><![CDATA[${sql.deleteBranchInfo}]]></db:parameterized-query>
+                    </db:delete>
+                </foreach>
+            </when>
+            <otherwise>
+                <logger message="------------fail" level="INFO" doc:name="Logger"/>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	message:fail
+}]]></dw:set-payload>
+                </dw:transform-message>
+            </otherwise>
+        </choice>
+        <logger message="--------end" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>

@@ -1,0 +1,65 @@
+<div>
+    <div class="modal" style="height:65%;width:95%; margin: 0 auto; botton: auto" id="branchEditModalLabel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div>
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">
+                    Distribution Schedule
+                </h4>
+                <button type="button" class="close" ng-click="closeEditTemplate()" style="width: auto">
+                    &times;
+                </button><br>
+            </div>
+            <div style="margin-left: 35px;" >
+            <p><h5>Assign tasks today</h5></p>
+                <input  style="height: 25px;width: 120px;" type="text" ng-model="dayNum" placeholder="Enter (/days)" ng-change="addBranchEditTemplateCopy(dayNum)"><td><h5 style="display:inline;">&nbsp;&nbsp;&nbsp;&nbsp;{{nowDay | date:'yyyy-MM-dd'}}</h5>  to  <h5  style="display:inline;">{{toDay | date:'yyyy-MM-dd'}}</h5></td>
+            <ul ng-repeat="br in branchList">
+                <li>{{br.branchName}}: Remain {{br.scheduledNum}}</li>
+            </ul>
+            </div>
+            <div class="modal-body">
+                <table style="width: 100%">
+                    <tr>
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td>customer name</td>
+                        <td>title</td>
+                        <td>body</td>
+                        <td>phone</td>
+                        <td>预约时间</td>
+                        <td>branch name</td>
+                        <td>Action</td>
+                    </tr>
+                    <tr ng-repeat="e in schedule">
+                        <td style="display: none">{{$index + 1}}</td>
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td><input type="text" style="width:180px;height:35px"  ng-model="e.customerName"/></td>
+                        <td><input type="text" style="width:180px;height:35px" ng-model="e.title"/></td>
+                        <td><input type="text" style="width:180px;height:35px"  ng-model="e.body"/></td>
+                        <td><input type="text" style="width:180px;height:35px;" ng-model="e.phone"/></td>
+                        <td>
+                            <input style="width:180px;height:35px;margin: -7px 0 1px 0;border: 1.5px solid #DBDBDB;border-radius: 6%;"
+                                   format="YYYY-MM-DD"
+                                   ng-model="e.startTime"
+                                   moment-picker="ctrl.datepicker"
+                                   ng-model-options="{ updateOn: 'blur' }">
+                        </td>
+                        <td>
+                            <!--ng-change="pitchOnButton(e.rowId,$index)"-->
+                            <select ng-model="e.rowId" style="width:180px;height:35px;margin: -7px 0 1px 0;" >
+                                <option  value="" style="color: lightgrey"><h3>-Please select branch-</h3></option>
+                                <option ng-repeat="x in branchList" ng-value = "x.branchId" ng-if="x.scheduledNum > 0">{{x.branchName}}</option>
+                            </select>
+                        </td>
+                        <td><button type="button" style="height: 40px;margin: -7px 0 1px 0;" class="btn btn-primary" ng-click="submitUpdate($index)">submit</button></td>
+                        <td><input type="text" ng-model="e.itemId" style="display: none" /></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" ng-click="closeEditTemplate()">close
+                </button>
+                <button type="button" class="btn btn-primary" ng-click="saveTemplate()">save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
