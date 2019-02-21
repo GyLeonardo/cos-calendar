@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+
+<flow name="editBranchInfo">
+        <logger message="-------------edit (update, insert) inertface " level="INFO" doc:name="Logger"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <choice doc:name="Choice">
+            <when expression="#[payload.branchUpdateInfo!=null&amp;&amp;payload.branchUpdateInfo.size()&gt;0]">
+                <logger message="-------------update interface" level="INFO" doc:name="Logger"/>
+                <foreach collection="#[payload.branchUpdateInfo]" doc:name="For Each">
+                    <set-payload value="#[payload]" doc:name="Set Payload"/>
+                    <db:update config-ref="MySQL_Configuration" doc:name="Database">
+                        <db:parameterized-query><![CDATA[${sql.updateBranchInfo}]]></db:parameterized-query>
+                    </db:update>
+                </foreach>
+            </when>
+            <otherwise>
+                <logger message="-----------No update operation was performed" level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+        <choice doc:name="Choice">
+            <when expression="#[payload.branchAddInfo!=null&amp;&amp;payload.branchAddInfo.size()&gt;0]">
+                <logger message="-------------add interface" level="INFO" doc:name="Logger"/>
+                <foreach collection="#[payload.branchAddInfo]" doc:name="For Each">
+                    <set-payload value="#[payload]" doc:name="Set Payload"/>
+                    <db:insert config-ref="MySQL_Configuration" doc:name="Database">
+                        <db:parameterized-query><![CDATA[${sql.addNewBranchInfo}]]></db:parameterized-query>
+                    </db:insert>
+                </foreach>
+            </when>
+            <otherwise>
+                <logger message="---------------------There is no add operation" level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+        <choice doc:name="Choice">
+            <when expression="#[payload.branchDelInfo!=null&amp;&amp;payload.branchDelInfo.size()&gt;0]">
+                <logger message="-----------delete Interface" level="INFO" doc:name="Logger"/>
+                <foreach collection="#[payload.branchDelInfo]" doc:name="For Each">
+                    <set-payload value="#[payload]" doc:name="Set Payload"/>
+                    <db:delete config-ref="MySQL_Configuration" doc:name="Database">
+                        <db:parameterized-query><![CDATA[${sql.deleteBranchInfo}]]></db:parameterized-query>
+                    </db:delete>
+                </foreach>
+            </when>
+            <otherwise>
+                <logger message="-----------------No deletion was performed" level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+        <logger message="--------------end" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>
